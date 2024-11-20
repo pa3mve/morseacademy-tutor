@@ -1,12 +1,13 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3001
 
-const server = app.listen(port,()=>{console.log('running')})
+const server = app.listen(port,()=>{console.log('running',process.env.DBCONNECTIONURL)})
 
 server.keepAliveTimeout = 120 * 1000
 server.headersTimeout = 120 * 1000
 
 app.get("/",(req,res)=>{
-    res.send('hello world',process.env.DBCONNECTIONURL)
+    res.send('hello world')
 })
