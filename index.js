@@ -5,6 +5,7 @@ const port = process.env.PORT || 3001
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const server = app.listen(port,()=>{console.log('running')})
+const cors = require('cors');
 
 mongoose.connect(process.env.DBCONNECTIONURL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -27,6 +28,7 @@ const messageSchema = new Schema({
   const Message = mongoose.model('Message', messageSchema);
 
 app.use(express.json());
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.get('/api/messages', async (req, res) => {
     try {
       const messages = await Message.find();
