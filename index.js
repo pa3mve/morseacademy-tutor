@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const server = app.listen(port,()=>{console.log('running')})
 const cors = require('cors');
+const socketIo = require('socket.io');
 
 mongoose.connect(process.env.DBCONNECTIONURL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -17,6 +18,19 @@ mongoose.connect(process.env.DBCONNECTIONURL, { useNewUrlParser: true, useUnifie
 
 server.keepAliveTimeout = 120 * 1000
 server.headersTimeout = 120 * 1000
+
+const io = socketIo(server, {
+  cors: {
+    origin: function (origin, callback) {
+      console.log(origin)
+      callback(null, true) //<== cors hack MVE;)
+    },
+    methods: ["get", "post"],
+    credentials: true
+  },
+  allowEIO3: true,
+  upgradeTimeout: 30000
+});
 
 const messageSchema = new Schema({
     name: { type: String, required: true },
@@ -69,3 +83,8 @@ app.get('/api/messages', async (req, res) => {
       res.status(500).json({ error: "Failed to delete message", details: err });
     }
   });
+
+  setInterval(()=>{
+    console.log("ping")
+    io.emit('myping', {date:new Date()})
+  },1000)
