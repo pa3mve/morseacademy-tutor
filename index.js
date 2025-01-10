@@ -84,7 +84,29 @@ app.get('/api/messages', async (req, res) => {
     }
   });
 
-  setInterval(()=>{
-    console.log("ping")
-    io.emit('myping', {date:new Date()})
-  },1000)
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  // Join a room
+  socket.on('joinRoom', (room) => {
+    socket.join(room);
+    console.log(`${socket.id} joined room: ${room}`);
+    io.to(room).emit('message', `User ${socket.id} has joined the room.`);
+  });
+
+  // Send a message to a room
+  socket.on('message', ({ room, message }) => {
+    console.log(`Message to ${room}: ${message}`);
+    io.to(room).emit('message', `${message}`);
+  });
+
+  socket.on('play', ({ room, message }) => {
+    console.log(`Play text to ${room}: ${message}`);
+    io.to(room).emit('play', `${message}`);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
